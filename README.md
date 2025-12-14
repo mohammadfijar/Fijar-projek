@@ -58,5 +58,6 @@ Pelanggan dapat menggunakan sistem untuk:
 Lihat dokumentasi struktur folder pada repository ini untuk memahami pembagian modul berdasarkan role.
 
 📄 Catatan
-Project ini dibuat untuk keperluan pembelajaran dan tugas pemrograman.
+Project ini dibuat oleh Mohammad Fijar Septa Dendy untuk keperluan pembelajaran dan tugas pemrograman.
+
 Sistem ini menerapkan konsep Role Based Access Control (RBAC) untuk membedakan hak akses pengguna sehingga proses manajemen data menjadi lebih terkontrol dan transparan.
