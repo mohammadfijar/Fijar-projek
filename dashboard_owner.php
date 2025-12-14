@@ -1,0 +1,224 @@
+<?php
+session_start();
+include 'koneksi.php';
+
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'owner') {
+    header("Location: index.php");
+    exit;
+}
+
+// Hitung total akun
+$jumlah_admin = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM login WHERE role = 'admin' AND deleted_at IS NULL"));
+$jumlah_karyawan = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM login WHERE role = 'karyawan' AND deleted_at IS NULL"));
+
+// Hitung total penjualan
+$penjualan = mysqli_query($conn, "SELECT COUNT(*) as total FROM transaksi");
+$jumlah_penjualan = mysqli_fetch_assoc($penjualan)['total'];
+
+
+// Hitung total pendapatan
+$pendapatan = mysqli_query($conn, "SELECT SUM(total_harga) as total FROM transaksi WHERE status_pembayaran = 'sudah_bayar'");
+$total_pendapatan = mysqli_fetch_assoc($pendapatan)['total'] ?? 0;
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Owner</title>
+    <link rel="shortcut icon" href="assets/img/icon/toko.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4e73df;
+            --secondary: #1cc88a;
+            --info: #36b9cc;
+            --warning: #f6c23e;
+            --danger: #e74a3b;
+            --light: #f8f9fc;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--light);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(90deg, rgb(185, 194, 103),rgb(235, 238, 60));
+            color: white;
+            text-align: center;
+            padding: 12px 0;
+        }
+
+        #main-content {
+            flex: 1;
+            padding: 30px;
+            margin-left: 20px;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+        }
+
+        .card .card-body {
+            position: relative;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            opacity: 0.25;
+        }
+
+        .card-primary {
+            background: linear-gradient(135deg, var(--primary), #224abe);
+            color: white;
+        }
+
+        .card-success {
+            background: linear-gradient(135deg, var(--secondary), #198754);
+            color: white;
+        }
+
+        .card-info {
+            background: linear-gradient(135deg, var(--info), #0dcaf0);
+            color: white;
+        }
+
+        .card-warning {
+            background: linear-gradient(135deg, var(--warning), #e0a800);
+            color: white;
+        }
+
+        .stat-text {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-number {
+            font-size: 1.6rem;
+            font-weight: bold;
+        }
+
+        .welcome-section {
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075);
+        }
+
+        footer {
+            background-color: rgb(189, 218, 63);
+            color: white;
+            text-align: center;
+            padding: 12px 0;
+        }
+
+        @media (max-width: 768px) {
+            #main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <?php include 'sidebar_owner.php'; ?>
+
+    <div class="main-wrapper">
+        <!-- Header -->
+        <div class="header">
+            <h4>Sistem Penjualan Toko  - Owner</h4>
+        </div>
+
+        <div id="main-content">
+            <div class="welcome-section">
+                <h3 class="text-primary fw-bold mb-1">Selamat Datang, <?= htmlspecialchars($_SESSION['name']) ?>!</h3>
+                <p class="text-muted">Hari ini: <?= date('l, d F Y') ?></p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6 col-xl-3">
+                    <a href="kelola_akun(read).php?role=owner" class="text-decoration-none">
+                        <div class="card card-primary">
+                            <div class="card-body">
+                                <div class="stat-text">Admin</div>
+                                <div class="stat-number"><?= $jumlah_admin ?></div>
+                                <small>Akun</small>
+                                <i class="bi bi-person-gear card-icon"></i>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <a href="kelola_akun(read).php?role=owner" class="text-decoration-none">
+                        <div class="card card-warning">
+                            <div class="card-body">
+                                <div class="stat-text">Karyawan</div>
+                                <div class="stat-number"><?= $jumlah_karyawan ?></div>
+                                <small>Akun</small>
+                                <i class="bi bi-people card-icon"></i>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <a href="laporan(read).php?role=owner" class="text-decoration-none">
+                        <div class="card card-success">
+                            <div class="card-body">
+                                <div class="stat-text">Penjualan</div>
+                                <div class="stat-number"><?= $jumlah_penjualan ?></div>
+                                <small>Transaksi</small>
+                                <i class="bi bi-cart-check card-icon"></i>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <a href="laporan(read).php?role=owner" class="text-decoration-none">
+                        <div class="card card-info">
+                            <div class="card-body">
+                                <div class="stat-text">Pendapatan</div>
+                                <div class="stat-number">Rp <?= number_format($total_pendapatan, 0, ',', '.') ?></div>
+                                <small>Total</small>
+                                <i class="bi bi-currency-dollar card-icon"></i>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; <?= date('Y') ?> Dibuat oleh | Mohammad Fijar
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
