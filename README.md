@@ -43,6 +43,7 @@ Owner memiliki hak akses **read-only**, dengan fitur:
 ---
 
 ## 🔧 Karyawan  
+![Dashboard](img/dashboardKaryawan.png)
 
 Karyawan memiliki hak akses **update-only**, meliputi:
 - Memperbarui stok barang
